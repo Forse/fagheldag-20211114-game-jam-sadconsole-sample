@@ -6,7 +6,10 @@ A sample game project utilizing SadConsole and MonoGame, based on the `ansi|ware
 The project is intended as a starter game template to be used at the `Forse Game Jam, November 2021`.
 
 # How to run the game
-`dotnet run` to compile and run the game
+
+1. Install a .NET >= 5.0 SDK for your preferred platform (Windows, Linux, Mac): https://dotnet.microsoft.com/download/dotnet/ 
+2. Fire up a shell in the GIT repository directory
+3. `cd src/GameJamSadConsoleSample && dotnet run` to compile and run the game
 
 # Controls 
 Move around: `Arrow keys 🔼 🔽 ◀  ▶`
