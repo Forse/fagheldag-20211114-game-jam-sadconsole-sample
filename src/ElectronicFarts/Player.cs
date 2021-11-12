@@ -11,6 +11,13 @@ namespace ElectronicFarts
         }
     }
     
+    public class Asteroid : Actor
+    {
+        public Asteroid(Color foreground, Color background, int glyph, int width = 1, int height = 1) : base(foreground, background, glyph, width, height)
+        {
+        }
+    }
+
     public abstract class TileBase : Cell
     {
 
