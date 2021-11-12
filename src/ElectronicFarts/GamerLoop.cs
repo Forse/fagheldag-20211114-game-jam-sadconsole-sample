@@ -181,8 +181,10 @@ namespace ElectronicFarts
             {
                 return;
             }
-            var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2);
-            shot.Position = new Point(playerGroup.GetLeftValue() , _floorYValue + 1);
+            var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2)
+            {
+                Position = new Point(playerGroup.GetLeftValue() , _floorYValue - 1)
+            };
             startingConsole.Children.Add(shot);
             _shots.Add(shot);
             playerGroup.IsShooting = true;
