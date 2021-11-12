@@ -34,12 +34,12 @@ namespace ElectronicFarts
         {
             Players = new List<Player>
             {
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
-                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 8, 4, 4),
             };
 
             Players[0].Position = new Point(centerValue - 1, floorValue);
@@ -57,9 +57,15 @@ namespace ElectronicFarts
         {
             foreach (var player in Players)
             {
+                if (!GameLoop.IsTileWalkable(player.Position + p))
+                {
+                    return false;
+                }
+            }
+            foreach (var player in Players)
+            {
                 player.MoveBy(p);
             }
-
             return true;
         }
 

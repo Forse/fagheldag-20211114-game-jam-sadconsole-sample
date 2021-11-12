@@ -221,10 +221,6 @@ namespace ElectronicFarts
 
         private static void CreatePlayer()
         {
-            // player = new Player(Color.Yellow, Color.Transparent, 30, 4, 4);
-            // player.Position = new Point(14, _floorYValue);
-            // startingConsole.Children.Add(player);
-
             playerGroup = new PlayerGroup(_floorYValue, 14);
             foreach (var groupPlayer in playerGroup.Players)
             {
@@ -235,7 +231,7 @@ namespace ElectronicFarts
         private static void CreateAsteroid()
         {
             var assRand = new Random().Next(1, 32);
-            var asteroid = new Asteroid(Color.Red, Color.Transparent, assRand, 2, 2);
+            var asteroid = new Asteroid(Color.Red, Color.Transparent, 31, 2, 2);
             var startPosition = new Random().Next(roomStartX, _roomWidth-1);
             asteroid.Position = new Point(startPosition, 1);
             startingConsole.Children.Add(asteroid);
