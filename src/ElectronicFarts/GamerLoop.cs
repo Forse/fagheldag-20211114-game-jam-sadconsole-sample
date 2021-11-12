@@ -13,6 +13,7 @@ namespace ElectronicFarts
         public const int Width = 60;
         public const int Height = 60;
         private static Player player;
+        private static PlayerGroup playerGroup;
         private static List<Asteroid> _asteroids = new();
         
         private static TileBase[] _tiles;
@@ -68,14 +69,19 @@ namespace ElectronicFarts
                     else
                     {
                         asteroid.MoveBy(new Point(0, 1));
-                        if (asteroid.Position == player.Position)
+                        if (playerGroup.IsHIt(asteroid.Position))
                         {
                             //Collision
-                            player.TakeDamage();
+                            var deadGroupPlayer = playerGroup.TakeDamage();
 
-                            startingConsole.Children.Remove(health[player.Health]);
-                            health.RemoveAt(player.Health);
-                            if (player.IsDead) isGameOver = true;
+                            if (deadGroupPlayer != null)
+                            {
+                                startingConsole.Children.Remove(deadGroupPlayer);
+                            }
+                            if(playerGroup.Players.Count== 0)
+                            {
+                                isGameOver = true;
+                            }
                         }
                     }
                 }
@@ -99,13 +105,13 @@ namespace ElectronicFarts
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left) 
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left))
             {
-                player.MoveBy(new Point(-1, 0));
+                playerGroup.MoveBy(new Point(-1, 0));
             }
 
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right)
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right))
             {
-                player.MoveBy(new Point(1, 0));
+                playerGroup.MoveBy(new Point(1, 0));
             }
         }
 
@@ -134,9 +140,15 @@ namespace ElectronicFarts
 
         private static void CreatePlayer()
         {
-            player = new Player(Color.Yellow, Color.Transparent, 1, 4, 4);
-            player.Position = new Point(14, _floorYValue);
-            startingConsole.Children.Add(player);
+            // player = new Player(Color.Yellow, Color.Transparent, 30, 4, 4);
+            // player.Position = new Point(14, _floorYValue);
+            // startingConsole.Children.Add(player);
+
+            playerGroup = new PlayerGroup(_floorYValue, 14);
+            foreach (var groupPlayer in playerGroup.Players)
+            {
+                startingConsole.Children.Add(groupPlayer);
+            }
         }
         
         private static void CreateHealth()
@@ -158,7 +170,8 @@ namespace ElectronicFarts
 
         private static void CreateAsteroid()
         {
-            var asteroid = new Asteroid(Color.Red, Color.Transparent, 1, 2, 2);
+            var assRand = new Random().Next(1, 32);
+            var asteroid = new Asteroid(Color.Red, Color.Transparent, assRand, 2, 2);
             var startPosition = new Random().Next(roomStartX, _roomWidth-1);
             asteroid.Position = new Point(startPosition, 1);
             startingConsole.Children.Add(asteroid);

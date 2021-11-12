@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SadConsole;
 
@@ -17,6 +19,56 @@ namespace ElectronicFarts
         }
 
         public bool IsDead => Health <= 0;
+    }
+
+    public class PlayerGroup
+    {
+        public PlayerGroup(int floorValue, int centerValue)
+        {
+            Players = new List<Player>
+            {
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+                new Player(Color.Yellow, Color.Transparent, 30, 4, 4),
+            };
+
+            Players[0].Position = new Point(centerValue - 1, floorValue);
+            Players[1].Position = new Point(centerValue, floorValue);
+            Players[2].Position = new Point(centerValue + 1, floorValue);
+            Players[3].Position = new Point(centerValue - 1, floorValue-1);
+            Players[4].Position = new Point(centerValue, floorValue-1);
+            Players[5].Position = new Point(centerValue + 1, floorValue-1);
+        }
+        
+        public List<Player> Players { get; private set; }
+
+        public bool MoveBy(Point p)
+        {
+            foreach (var player in Players)
+            {
+                player.MoveBy(p);
+            }
+
+            return true;
+        }
+
+        public Player TakeDamage()
+        {
+            var playerToRemove = Players.LastOrDefault();
+            if (playerToRemove == null) return null;
+            Players.Remove(playerToRemove);
+            return playerToRemove;
+        }
+
+        public bool IsHIt(Point target)
+        {
+            if (Players.Any(s => s.Position == target))
+                return true;
+            return false;
+        }
     }
     
     public class Asteroid : Actor
