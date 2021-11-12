@@ -122,6 +122,7 @@ namespace ElectronicFarts
 
         private static void Init()
         {
+            CreateBackgroundMusic();
             CreateWalls();
             CreateFloors();
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
@@ -191,7 +192,13 @@ namespace ElectronicFarts
                 }
             }
         }
-        
+
+        private static void CreateBackgroundMusic()
+        {
+            var musicPlaybackService = new DefaultBackgroundMusicPlaybackService(SadConsole.Game.Instance.Content);
+            musicPlaybackService.StartBackgroundMusic("gamemusic");
+        }
+
         public static bool IsTileWalkable(Point location)
         {
             if (location.X < 0 || location.Y < 0 || location.X >= Width || location.Y >= Height)
