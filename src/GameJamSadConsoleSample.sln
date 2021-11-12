@@ -3,20 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameJamSadConsoleSample", "GameJamSadConsoleSample\GameJamSadConsoleSample.csproj", "{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameJamSadConsoleSample", "GameJamSadConsoleSample\GameJamSadConsoleSample.csproj", "{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectronicFarts", "ElectronicFarts\ElectronicFarts.csproj", "{5DA8378B-4EEE-4AE3-BB6A-DCCDE1DBDE4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CDD0893-0D34-4F77-98B0-3324E3EEE0C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DA8378B-4EEE-4AE3-BB6A-DCCDE1DBDE4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DA8378B-4EEE-4AE3-BB6A-DCCDE1DBDE4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DA8378B-4EEE-4AE3-BB6A-DCCDE1DBDE4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DA8378B-4EEE-4AE3-BB6A-DCCDE1DBDE4C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {10687009-D9EB-443D-813F-897C39D85B36}
 	EndGlobalSection
 EndGlobal
