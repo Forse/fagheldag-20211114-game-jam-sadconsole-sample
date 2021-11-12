@@ -69,6 +69,30 @@ namespace ElectronicFarts
                 return true;
             return false;
         }
+
+        public int GetLeftValue()
+        {
+            var value = 1000;
+            foreach (var player in Players)
+            {
+                if (player.Position.X < value)
+                    value = player.Position.X;
+            }
+
+            return value;
+        }
+        
+        public int GetRightValue()
+        {
+            var value = 0;
+            foreach (var player in Players)
+            {
+                if (player.Position.X > value)
+                    value = player.Position.X;
+            }
+
+            return value;
+        }
     }
     
     public class Asteroid : Actor

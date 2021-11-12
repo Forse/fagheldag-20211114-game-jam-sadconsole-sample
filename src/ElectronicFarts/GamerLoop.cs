@@ -19,7 +19,7 @@ namespace ElectronicFarts
         private static TileBase[] _tiles;
         private const int roomStartY = 1;
         private const int roomStartX = 1;
-        private const int _roomWidth = 50; 
+        private const int _roomWidth = 55; 
         private const int _roomHeight = 50;
 
         private const int _floorYValue = 49;
@@ -67,7 +67,18 @@ namespace ElectronicFarts
                     }
                     else
                     {
-                        asteroid.MoveBy(new Point(0, 1));
+                        if (asteroid.Position.X > playerGroup.GetLeftValue())
+                        {
+                            asteroid.MoveBy(new Point(-1, 1));
+                        }else if (asteroid.Position.X < playerGroup.GetRightValue())
+                        {
+                            asteroid.MoveBy(new Point(1, 1));
+                        }
+                        else
+                        {
+                            asteroid.MoveBy(new Point(0, 1));
+                        }
+                        
                         if (playerGroup.IsHIt(asteroid.Position))
                         {
                             //Collision
