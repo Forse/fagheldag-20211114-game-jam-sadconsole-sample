@@ -29,16 +29,13 @@ namespace ElectronicFarts
 
         public bool MoveBy(Point positionChange)
         {
-            Position += positionChange;
-            return true;
-
-            //if (GameLoop.IsTileWalkable(Position + positionChange))
-            //{
-            //    Position += positionChange;
-            //    return true;
-            //}
-            //else
-            //    return false;
+            if (GameLoop.IsTileWalkable(Position + positionChange))
+            {
+                Position += positionChange;
+                return true;
+            }
+            else
+                return false;
         }
 
         public bool MoveTo(Point newPosition)
