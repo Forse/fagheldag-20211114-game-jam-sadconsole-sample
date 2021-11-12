@@ -96,6 +96,18 @@ namespace ElectronicFarts
             return value;
         }
         
+        public int GetBottomValue()
+        {
+            var value = 1000;
+            foreach (var player in Players)
+            {
+                if (player.Position.Y < value)
+                    value = player.Position.Y;
+            }
+
+            return value;
+        }
+        
         public int GetRightValue()
         {
             var value = 0;

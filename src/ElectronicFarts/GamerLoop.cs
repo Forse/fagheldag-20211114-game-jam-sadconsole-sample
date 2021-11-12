@@ -12,7 +12,6 @@ namespace ElectronicFarts
     {
         public const int Width = 60;
         public const int Height = 60;
-        private static Player player;
         private static PlayerGroup playerGroup;
         private static List<Asteroid> _asteroids = new();
         private static List<Shot> _shots = new();
@@ -167,6 +166,18 @@ namespace ElectronicFarts
             {
                 playerGroup.MoveBy(new Point(1, 0));
             }
+            
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up)
+                || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Up))
+            {
+                playerGroup.MoveBy(new Point(0, -1));
+            }
+            
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down)
+                || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Down))
+            {
+                playerGroup.MoveBy(new Point(0, 1));
+            }
 
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space)
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Space))
@@ -183,7 +194,7 @@ namespace ElectronicFarts
             }
             var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2)
             {
-                Position = new Point(playerGroup.GetLeftValue() , _floorYValue - 1)
+                Position = new Point(playerGroup.GetLeftValue() , playerGroup.GetBottomValue() - 1)
             };
             startingConsole.Children.Add(shot);
             _shots.Add(shot);
