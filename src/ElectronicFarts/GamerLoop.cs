@@ -26,7 +26,6 @@ namespace ElectronicFarts
 
         private static Stopwatch _stopwatch;
         public static Console startingConsole;
-        private static List<HealthEntity> health;
         private static bool isGameOver = false;
 
         static void Main(string[] args)
@@ -134,7 +133,6 @@ namespace ElectronicFarts
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
             Global.CurrentScreen = startingConsole;
             CreatePlayer();
-            CreateHealth();
             _stopwatch = new Stopwatch();
         }
 
@@ -148,23 +146,6 @@ namespace ElectronicFarts
             foreach (var groupPlayer in playerGroup.Players)
             {
                 startingConsole.Children.Add(groupPlayer);
-            }
-        }
-        
-        private static void CreateHealth()
-        {
-            health = new List<HealthEntity>
-            {
-                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
-                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
-                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
-                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
-                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
-            };
-            for (int i = 0; i < health.Count; i++)
-            {
-                health[i].Position = new Point(i, _floorYValue+5);
-                startingConsole.Children.Add(health[i]);
             }
         }
 
