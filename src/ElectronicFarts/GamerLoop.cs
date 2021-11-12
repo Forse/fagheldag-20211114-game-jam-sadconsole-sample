@@ -15,6 +15,7 @@ namespace ElectronicFarts
         private static Player player;
         private static PlayerGroup playerGroup;
         private static List<Asteroid> _asteroids = new();
+        private static List<Shot> _shots = new();
         
         private static TileBase[] _tiles;
         private const int roomStartY = 1;
@@ -47,7 +48,7 @@ namespace ElectronicFarts
             }
             
             HandleGameMechanics(obj);
-            HandleKeyboardInput();
+            HandleKeyboardInput(obj);
         }
 
         private static void HandleGameMechanics(GameTime obj)
@@ -57,6 +58,18 @@ namespace ElectronicFarts
 
             if (IsGameTick(obj).Item1)
             {
+                foreach (var shot in _shots.ToList())
+                {
+                    if (shot.Position.Y == 1)
+                    {
+                        _shots.Remove(shot);
+                        startingConsole.Children.Remove(shot);
+                    }
+                    else
+                    {
+                        shot.MoveBy(new Point(0, -1));
+                    }
+                }
                 foreach (var asteroid in _asteroids.ToList())
                 {
                     if (asteroid.Position.Y == _floorYValue)
@@ -67,30 +80,47 @@ namespace ElectronicFarts
                     }
                     else
                     {
-                        if (asteroid.Position.X > playerGroup.GetLeftValue())
+                        var asteroidHit = false;
+                        foreach (var shot in _shots.ToList())
                         {
-                            asteroid.MoveBy(new Point(-1, 1));
-                        }else if (asteroid.Position.X < playerGroup.GetRightValue())
-                        {
-                            asteroid.MoveBy(new Point(1, 1));
-                        }
-                        else
-                        {
-                            asteroid.MoveBy(new Point(0, 1));
-                        }
-                        
-                        if (playerGroup.IsHIt(asteroid.Position))
-                        {
-                            //Collision
-                            var deadGroupPlayer = playerGroup.TakeDamage();
-
-                            if (deadGroupPlayer != null)
+                            if (shot.Position == asteroid.Position)
                             {
-                                startingConsole.Children.Remove(deadGroupPlayer);
+                                startingConsole.Children.Remove(asteroid);
+                                _asteroids.Remove(asteroid);
+                                startingConsole.Children.Remove(shot);
+                                _shots.Remove(shot);
+                                asteroidHit = true;
                             }
-                            if(playerGroup.Players.Count== 0)
+                        }
+
+                        if (!asteroidHit)
+                        {
+                            if (asteroid.Position.X > playerGroup.GetLeftValue())
                             {
-                                isGameOver = true;
+                                asteroid.MoveBy(new Point(-1, 1));
+                            }
+                            else if (asteroid.Position.X < playerGroup.GetRightValue())
+                            {
+                                asteroid.MoveBy(new Point(1, 1));
+                            }
+                            else
+                            {
+                                asteroid.MoveBy(new Point(0, 1));
+                            }
+                        
+                            if (playerGroup.IsHIt(asteroid.Position))
+                            {
+                                //Collision
+                                var deadGroupPlayer = playerGroup.TakeDamage();
+
+                                if (deadGroupPlayer != null)
+                                {
+                                    startingConsole.Children.Remove(deadGroupPlayer);
+                                }
+                                if (playerGroup.Players.Count == 0)
+                                {
+                                    isGameOver = true;
+                                }
                             }
                         }
                     }
@@ -105,7 +135,7 @@ namespace ElectronicFarts
             }
         }
 
-        private static void HandleKeyboardInput()
+        private static void HandleKeyboardInput(GameTime gameTime)
         {
             if (Global.KeyboardState.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.F5))
             {
@@ -123,7 +153,22 @@ namespace ElectronicFarts
             {
                 playerGroup.MoveBy(new Point(1, 0));
             }
+
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space)
+                || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Space))
+            {
+                Shoot();
+            }
         }
+        
+        private static void Shoot()
+        {
+            var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2);
+            shot.Position = new Point(playerGroup.GetLeftValue() , _floorYValue + 1);
+            startingConsole.Children.Add(shot);
+            _shots.Add(shot);
+        }
+
 
         private static (bool,int) IsGameTick(GameTime gameTime)
         {
