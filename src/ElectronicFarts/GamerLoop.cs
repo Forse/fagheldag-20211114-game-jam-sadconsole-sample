@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SadConsole;
 using Console = SadConsole.Console;
@@ -11,11 +13,11 @@ namespace ElectronicFarts
         public const int Width = 40;
         public const int Height = 40;
         private static Player player;
-        private static Asteroid _asteroid;
+        private static List<Asteroid> _asteroids = new();
         
         private static TileBase[] _tiles;
         private const int roomStartY = 1;
-        private const int roomStartX = 2;
+        private const int roomStartX = 1;
         private const int _roomWidth = 30; 
         private const int _roomHeight = 30;
 
@@ -65,22 +67,26 @@ namespace ElectronicFarts
 
             if (_stopwatch.Elapsed.TotalMilliseconds > 200)
             {
-                if (_asteroid.Position.Y == _floorYValue)
+                foreach (var asteroid in _asteroids.ToList())
                 {
-                    //Remove it
-                    startingConsole.Children.Remove(_asteroid);
-                    CreateAsteroid();
-                    
+                    if (asteroid.Position.Y == _floorYValue)
+                    {
+                        //Remove it
+                        startingConsole.Children.Remove(asteroid);
+                        _asteroids.Remove(asteroid);
+                    }
+                    else
+                    {
+                        asteroid.MoveBy(new Point(0, 1));
+                    }
                 }
-                _asteroid.MoveBy(new Point(0, 1));
+                if (new Random().Next(1, 100) > 90)
+                {
+                    CreateAsteroid();
+                }
+
                 _stopwatch.Restart();
             }
-            
-            //_asteroid.MoveBy(new Point(0, 1));
-            
-            System.Console.WriteLine(_asteroid.Position.X);
-
-
         }
 
         private static void Init()
@@ -90,12 +96,9 @@ namespace ElectronicFarts
             
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
 
-            SadConsole.Global.CurrentScreen = startingConsole;
+            Global.CurrentScreen = startingConsole;
             CreatePlayer();
-            CreateAsteroid();
             
-            
-
             _stopwatch = new Stopwatch();
         }
 
@@ -108,18 +111,18 @@ namespace ElectronicFarts
 
         private static void CreateAsteroid()
         {
-            _asteroid = new Asteroid(Color.Red, Color.Transparent, 1, 2, 2);
-            var rand = new Random();
-            var startPosition = rand.Next(1, 29);
-            _asteroid.Position = new Point(startPosition, 1);
-            startingConsole.Children.Add(_asteroid);
+            var asteroid = new Asteroid(Color.Red, Color.Transparent, 1, 2, 2);
+            var startPosition = new Random().Next(roomStartX, _roomWidth-1);
+            asteroid.Position = new Point(startPosition, 1);
+            startingConsole.Children.Add(asteroid);
+            _asteroids.Add(asteroid);
         }
         
         private static void CreateFloors()
         {
-            for (int x = roomStartX; x < _roomWidth; x++)
+            for (var x = roomStartX; x < _roomWidth; x++)
             {
-                for (int y = roomStartY; y < _roomHeight; y++)
+                for (var y = roomStartY; y < _roomHeight; y++)
                 {
                     _tiles[y * Width + x] = new TileFloor();
                 }
@@ -128,11 +131,11 @@ namespace ElectronicFarts
         
         private static void CreateWalls()
         {
-            int wallAlternator = 0;
-            string wallCharacters = "$#$%";
+            var wallAlternator = 0;
+            var wallCharacters = "$#$%";
             _tiles = new TileBase[Width * Height];
 
-            for (int i = 0; i < _tiles.Length; i++)
+            for (var i = 0; i < _tiles.Length; i++)
             {
                 _tiles[i] = new TileWall(wallCharacters[wallAlternator]);
                 wallAlternator++;
