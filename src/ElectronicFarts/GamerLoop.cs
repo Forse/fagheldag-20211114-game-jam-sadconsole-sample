@@ -10,21 +10,23 @@ namespace ElectronicFarts
 {
     public class GameLoop
     {
-        public const int Width = 40;
-        public const int Height = 40;
+        public const int Width = 60;
+        public const int Height = 60;
         private static Player player;
         private static List<Asteroid> _asteroids = new();
         
         private static TileBase[] _tiles;
         private const int roomStartY = 1;
         private const int roomStartX = 1;
-        private const int _roomWidth = 30; 
-        private const int _roomHeight = 30;
+        private const int _roomWidth = 50; 
+        private const int _roomHeight = 50;
 
-        private const int _floorYValue = 29;
+        private const int _floorYValue = 49;
 
         private static Stopwatch _stopwatch;
         public static Console startingConsole;
+        private static List<HealthEntity> health;
+        private static bool isGameOver = false;
 
         static void Main(string[] args)
         {
@@ -37,6 +39,12 @@ namespace ElectronicFarts
 
         private static void Update(GameTime obj)
         {
+            if (isGameOver)
+            {
+                startingConsole.Print(1, 12, "Game over dickhead", ColorAnsi.CyanBright);
+                return;
+            }
+            
             if (Global.KeyboardState.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.F5))
             {
                 Settings.ToggleFullScreen();
@@ -65,7 +73,7 @@ namespace ElectronicFarts
             if(_stopwatch.IsRunning == false)
                 _stopwatch.Start();
 
-            if (_stopwatch.Elapsed.TotalMilliseconds > 200)
+            if (IsGameTick(obj).Item1)
             {
                 foreach (var asteroid in _asteroids.ToList())
                 {
@@ -78,14 +86,39 @@ namespace ElectronicFarts
                     else
                     {
                         asteroid.MoveBy(new Point(0, 1));
+                        if (asteroid.Position == player.Position)
+                        {
+                            //Collision
+                            player.TakeDamage();
+                            
+                            startingConsole.Children.Remove(health[player.Health]);
+                            health.RemoveAt(player.Health);
+                            //startingConsole.Print(1, 1, $"Health: {player.Health}", ColorAnsi.CyanBright);
+
+                            if (player.IsDead) isGameOver = true;
+                        }
                     }
                 }
-                if (new Random().Next(1, 100) > 90)
+                if (new Random().Next(1, 100) > IsGameTick(obj).Item2)
                 {
                     CreateAsteroid();
                 }
 
                 _stopwatch.Restart();
+            }
+        }
+
+        private static (bool,int) IsGameTick(GameTime gameTime)
+        {
+            switch (gameTime.TotalGameTime)
+            {
+                case var s when s.TotalSeconds < 30:
+                    return (_stopwatch.Elapsed.TotalMilliseconds > 200,90);
+                case var s when s.TotalSeconds < 60:
+                    return (_stopwatch.Elapsed.TotalMilliseconds > 150,70);
+                default:
+                    return (_stopwatch.Elapsed.TotalMilliseconds > 100,50);
+                    
             }
         }
 
@@ -98,8 +131,9 @@ namespace ElectronicFarts
 
             Global.CurrentScreen = startingConsole;
             CreatePlayer();
-            
+            CreateHealth();
             _stopwatch = new Stopwatch();
+            //startingConsole.Print(1, 1, $"Health: {player.Health}", ColorAnsi.CyanBright);
         }
 
         private static void CreatePlayer()
@@ -107,6 +141,23 @@ namespace ElectronicFarts
             player = new Player(Color.Yellow, Color.Transparent, 1, 4, 4);
             player.Position = new Point(14, _floorYValue);
             startingConsole.Children.Add(player);
+        }
+        
+        private static void CreateHealth()
+        {
+            health = new List<HealthEntity>
+            {
+                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
+                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
+                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
+                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
+                new HealthEntity(Color.Red, Color.Transparent,3,2,2),
+            };
+            for (int i = 0; i < health.Count; i++)
+            {
+                health[i].Position = new Point(0, i);
+                startingConsole.Children.Add(health[i]);
+            }
         }
 
         private static void CreateAsteroid()

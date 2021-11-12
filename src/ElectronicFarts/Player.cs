@@ -8,12 +8,27 @@ namespace ElectronicFarts
     {
         public Player(Color foreground, Color background, int glyph, int width =4, int height = 4) : base(foreground, background, glyph, width, height)
         {
+            Health = 5;
         }
+        
+        public void TakeDamage()
+        {
+            Health -= 1;
+        }
+
+        public bool IsDead => Health <= 0;
     }
     
     public class Asteroid : Actor
     {
         public Asteroid(Color foreground, Color background, int glyph, int width = 1, int height = 1) : base(foreground, background, glyph, width, height)
+        {
+        }
+    }
+    
+    public class HealthEntity : Actor
+    {
+        public HealthEntity(Color foreground, Color background, int glyph, int width = 1, int height = 1) : base(foreground, background, glyph, width, height)
         {
         }
     }
