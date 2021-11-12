@@ -25,10 +25,11 @@ namespace ElectronicFarts
 
         private const int _floorYValue = 49;
 
-        private static Stopwatch _stopwatch;
+        private static Stopwatch _gameStopWatch;
+        private static Stopwatch _asteroidStopWatch;
         public static Console startingConsole;
         private static bool isGameOver = false;
-
+        private static bool heatSeeking = false;
         static void Main(string[] args)
         {
             SadConsole.Game.Create(Width, Height);
@@ -53,10 +54,13 @@ namespace ElectronicFarts
 
         private static void HandleGameMechanics(GameTime obj)
         {
-            if (_stopwatch.IsRunning == false)
-                _stopwatch.Start();
-
-            if (IsGameTick(obj).Item1)
+            if (_gameStopWatch.IsRunning == false)
+                _gameStopWatch.Start();
+            
+            if (_asteroidStopWatch.IsRunning == false)
+                _asteroidStopWatch.Start();
+            
+            if (IsGameTick().Item1)
             {
                 foreach (var shot in _shots.ToList())
                 {
@@ -72,6 +76,48 @@ namespace ElectronicFarts
                 }
                 foreach (var asteroid in _asteroids.ToList())
                 {
+                    var asteroidHit = false;
+                    foreach (var shot in _shots.ToList())
+                    {
+                        if (shot.Position == asteroid.Position)
+                        {
+                            startingConsole.Children.Remove(asteroid);
+                            _asteroids.Remove(asteroid);
+                            startingConsole.Children.Remove(shot);
+                            _shots.Remove(shot);
+                            asteroidHit = true;
+                            break;
+                        }
+                    }
+
+                    if (!asteroidHit)
+                    {
+                        if (playerGroup.IsHIt(asteroid.Position))
+                        {
+                            //Collision
+                            var deadGroupPlayer = playerGroup.TakeDamage();
+
+                            if (deadGroupPlayer != null)
+                            {
+                                startingConsole.Children.Remove(deadGroupPlayer);
+                            }
+                            if (playerGroup.Players.Count == 0)
+                            {
+                                isGameOver = true;
+                            }
+                        }
+                    }
+                }
+                
+                _gameStopWatch.Restart();
+            }
+
+            if (IsAsteroidTick(obj).Item1)
+            {
+                playerGroup.IsShooting = false;
+
+                foreach (var asteroid in _asteroids.ToList())
+                {
                     if (asteroid.Position.Y == _floorYValue)
                     {
                         //Remove it
@@ -80,58 +126,26 @@ namespace ElectronicFarts
                     }
                     else
                     {
-                        var asteroidHit = false;
-                        foreach (var shot in _shots.ToList())
+                        if (heatSeeking && asteroid.Position.X > playerGroup.GetLeftValue())
                         {
-                            if (shot.Position == asteroid.Position)
-                            {
-                                startingConsole.Children.Remove(asteroid);
-                                _asteroids.Remove(asteroid);
-                                startingConsole.Children.Remove(shot);
-                                _shots.Remove(shot);
-                                asteroidHit = true;
-                            }
+                            asteroid.MoveBy(new Point(-1, 1));
                         }
-
-                        if (!asteroidHit)
+                        else if (heatSeeking && asteroid.Position.X < playerGroup.GetRightValue())
                         {
-                            if (asteroid.Position.X > playerGroup.GetLeftValue())
-                            {
-                                asteroid.MoveBy(new Point(-1, 1));
-                            }
-                            else if (asteroid.Position.X < playerGroup.GetRightValue())
-                            {
-                                asteroid.MoveBy(new Point(1, 1));
-                            }
-                            else
-                            {
-                                asteroid.MoveBy(new Point(0, 1));
-                            }
-                        
-                            if (playerGroup.IsHIt(asteroid.Position))
-                            {
-                                //Collision
-                                var deadGroupPlayer = playerGroup.TakeDamage();
-
-                                if (deadGroupPlayer != null)
-                                {
-                                    startingConsole.Children.Remove(deadGroupPlayer);
-                                }
-                                if (playerGroup.Players.Count == 0)
-                                {
-                                    isGameOver = true;
-                                }
-                            }
+                            asteroid.MoveBy(new Point(1, 1));
+                        }
+                        else
+                        {
+                            asteroid.MoveBy(new Point(0, 1));
                         }
                     }
                 }
-
-                if (new Random().Next(1, 100) > IsGameTick(obj).Item2)
+                
+                if (new Random().Next(1, 100) > IsGameTick().Item2)
                 {
                     CreateAsteroid();
                 }
-
-                _stopwatch.Restart();
+                _asteroidStopWatch.Restart();
             }
         }
 
@@ -163,22 +177,32 @@ namespace ElectronicFarts
         
         private static void Shoot()
         {
+            if (playerGroup.IsShooting)
+            {
+                return;
+            }
             var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2);
             shot.Position = new Point(playerGroup.GetLeftValue() , _floorYValue + 1);
             startingConsole.Children.Add(shot);
             _shots.Add(shot);
+            playerGroup.IsShooting = true;
         }
 
 
-        private static (bool,int) IsGameTick(GameTime gameTime)
+        private static (bool,int) IsAsteroidTick(GameTime gameTime)
         {
             return gameTime.TotalGameTime switch
             {
-                { TotalSeconds: < 20 } => (_stopwatch.Elapsed.TotalMilliseconds > 200, 90),
-                { TotalSeconds: < 40 } => (_stopwatch.Elapsed.TotalMilliseconds > 150, 70),
-                { TotalSeconds: < 60 } => (_stopwatch.Elapsed.TotalMilliseconds > 100, 50),
-                _ => (_stopwatch.Elapsed.TotalMilliseconds > 75, 20)
+                { TotalSeconds: < 20 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 200, 90),
+                { TotalSeconds: < 40 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 150, 70),
+                { TotalSeconds: < 60 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 100, 50),
+                _ => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 75, 20)
             };
+        }
+        
+        private static (bool,int) IsGameTick()
+        {
+            return (_gameStopWatch.Elapsed.TotalMilliseconds > 75, 20);
         }
 
         private static void Init()
@@ -189,7 +213,8 @@ namespace ElectronicFarts
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
             Global.CurrentScreen = startingConsole;
             CreatePlayer();
-            _stopwatch = new Stopwatch();
+            _gameStopWatch = new Stopwatch();
+            _asteroidStopWatch = new Stopwatch();
         }
 
         private static void CreatePlayer()

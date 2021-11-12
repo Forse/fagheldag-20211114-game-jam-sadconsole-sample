@@ -44,6 +44,7 @@ namespace ElectronicFarts
         }
         
         public List<Player> Players { get; private set; }
+        public bool IsShooting { get; set; }
 
         public bool MoveBy(Point p)
         {
