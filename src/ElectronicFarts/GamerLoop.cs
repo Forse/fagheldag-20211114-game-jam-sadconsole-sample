@@ -41,36 +41,18 @@ namespace ElectronicFarts
         {
             if (isGameOver)
             {
-                startingConsole.Print(1, 12, "Game over dickhead", ColorAnsi.CyanBright);
+                var score = obj.TotalGameTime.TotalSeconds.ToString("0000");
+                startingConsole.Print(1, 12, $"Game over dickhead.", ColorAnsi.CyanBright);
                 return;
             }
             
-            if (Global.KeyboardState.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.F5))
-            {
-                Settings.ToggleFullScreen();
-            }
+            HandleGameMechanics(obj);
+            HandleKeyboardInput();
+        }
 
-            //if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
-            //{
-            //    player.MoveBy(new Point(0, -1));
-            //}
-
-            //if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
-            //{
-            //    player.MoveBy(new Point(0, 1));
-            //}
-
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
-            {
-                player.MoveBy(new Point(-1, 0));
-            }
-
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
-            {
-                player.MoveBy(new Point(1, 0));
-            }
-            
-            if(_stopwatch.IsRunning == false)
+        private static void HandleGameMechanics(GameTime obj)
+        {
+            if (_stopwatch.IsRunning == false)
                 _stopwatch.Start();
 
             if (IsGameTick(obj).Item1)
@@ -90,15 +72,14 @@ namespace ElectronicFarts
                         {
                             //Collision
                             player.TakeDamage();
-                            
+
                             startingConsole.Children.Remove(health[player.Health]);
                             health.RemoveAt(player.Health);
-                            //startingConsole.Print(1, 1, $"Health: {player.Health}", ColorAnsi.CyanBright);
-
                             if (player.IsDead) isGameOver = true;
                         }
                     }
                 }
+
                 if (new Random().Next(1, 100) > IsGameTick(obj).Item2)
                 {
                     CreateAsteroid();
@@ -108,32 +89,46 @@ namespace ElectronicFarts
             }
         }
 
+        private static void HandleKeyboardInput()
+        {
+            if (Global.KeyboardState.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.F5))
+            {
+                Settings.ToggleFullScreen();
+            }
+
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left) 
+                || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left))
+            {
+                player.MoveBy(new Point(-1, 0));
+            }
+
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right)
+                || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right))
+            {
+                player.MoveBy(new Point(1, 0));
+            }
+        }
+
         private static (bool,int) IsGameTick(GameTime gameTime)
         {
-            switch (gameTime.TotalGameTime)
+            return gameTime.TotalGameTime switch
             {
-                case var s when s.TotalSeconds < 30:
-                    return (_stopwatch.Elapsed.TotalMilliseconds > 200,90);
-                case var s when s.TotalSeconds < 60:
-                    return (_stopwatch.Elapsed.TotalMilliseconds > 150,70);
-                default:
-                    return (_stopwatch.Elapsed.TotalMilliseconds > 100,50);
-                    
-            }
+                { TotalSeconds: < 20 } => (_stopwatch.Elapsed.TotalMilliseconds > 200, 90),
+                { TotalSeconds: < 40 } => (_stopwatch.Elapsed.TotalMilliseconds > 150, 70),
+                { TotalSeconds: < 60 } => (_stopwatch.Elapsed.TotalMilliseconds > 100, 50),
+                _ => (_stopwatch.Elapsed.TotalMilliseconds > 75, 20)
+            };
         }
 
         private static void Init()
         {
             CreateWalls();
             CreateFloors();
-            
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
-
             Global.CurrentScreen = startingConsole;
             CreatePlayer();
             CreateHealth();
             _stopwatch = new Stopwatch();
-            //startingConsole.Print(1, 1, $"Health: {player.Health}", ColorAnsi.CyanBright);
         }
 
         private static void CreatePlayer()
@@ -155,7 +150,7 @@ namespace ElectronicFarts
             };
             for (int i = 0; i < health.Count; i++)
             {
-                health[i].Position = new Point(0, i);
+                health[i].Position = new Point(i, _floorYValue+5);
                 startingConsole.Children.Add(health[i]);
             }
         }
