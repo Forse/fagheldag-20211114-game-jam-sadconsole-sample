@@ -10,12 +10,12 @@ namespace ElectronicFarts
         {
             Players = new List<Player>
             {
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
-                new(Color.Yellow, Color.Transparent, 8, 4, 4),
+                new(Color.Yellow, Color.Transparent, 199, 4, 4),
+                new(Color.Yellow, Color.Transparent, 215, 4, 4),
+                new(Color.Yellow, Color.Transparent, 182, 4, 4),
+                new(Color.Yellow, Color.Transparent, 214, 4, 4),
+                new(Color.Yellow, Color.Transparent, 215, 4, 4),
+                new(Color.Yellow, Color.Transparent, 183, 4, 4),
             };
 
             Players[0].Position = new Point(centerValue - 1, floorValue);
