@@ -28,8 +28,11 @@ namespace ElectronicFarts
         private static Stopwatch _gameStopWatch;
         private static Stopwatch _asteroidStopWatch;
         public static Console startingConsole;
+        private static Console _introConsole;
         private static bool isGameOver = false;
         private static bool isBossDead = false;
+        private static bool isGameStarted = false;
+        
         static void Main(string[] args)
         {
             SadConsole.Game.Create(Width, Height);
@@ -47,9 +50,25 @@ namespace ElectronicFarts
                 startingConsole.Print(1, 12, $"Game over dickhead.", ColorAnsi.CyanBright);
                 return;
             }
-            
-            HandleGameMechanics(obj);
+
+            if (isGameStarted)
+            {
+                HandleGameMechanics(obj);
+            }
             HandleKeyboardInput(obj);
+        }
+
+        private static void ShowIntro()
+        {
+            var textConsole = new Console(Width - 4, 30, Global.FontDefault);
+            textConsole.Position = new Point(2, 5);
+            _introConsole.Children.Add(textConsole);
+            textConsole.Print(0, 0, "A long time ago in a galaxy far far away... ", Color.Cyan, Color.Transparent);
+            textConsole.Cursor.Position = new Point(0, 3);
+            textConsole.Cursor.Print("No wait. It's present and in the same galaxy you are in now. You have escaped from the earth after all the world's police are after you. You decide to go to Mars to start a new life. But as you are about to land on the red planet, you are shot by laser cannons from the little hospitable race called the Marsipans. You have no choice but to shoot back hoping to land on the more peaceful part of the planet.\r\n\r\nYou are pretty much fucked...");
+            _introConsole.Fill(new Rectangle(0, 30, Width, 5), Color.Transparent, Color.Yellow, ' ');
+            _introConsole.Print(25, 32, $"MARS WARS", ColorAnsi.Black);
+            _introConsole.Print(2, 50, "An Electronic Farts game", Color.White);
         }
 
         private static void HandleGameMechanics(GameTime obj)
@@ -178,6 +197,10 @@ namespace ElectronicFarts
 
         private static void HandleKeyboardInput(GameTime gameTime)
         {
+            if (Global.KeyboardState.KeysPressed.Any())
+            {
+                StartGame();
+            }
             if (Global.KeyboardState.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.F5))
             {
                 Settings.ToggleFullScreen();
@@ -213,7 +236,17 @@ namespace ElectronicFarts
                 Shoot();
             }
         }
-        
+
+        private static void StartGame()
+        {
+            if (!isGameStarted)
+            {
+                isGameStarted = true;
+                Global.CurrentScreen = startingConsole;
+                CreateBackgroundMusic();
+            }
+        }
+
         private static void Shoot()
         {
             if (playerGroup.IsShooting)
@@ -257,8 +290,10 @@ namespace ElectronicFarts
             CreateWalls();
             CreateFloors();
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
-            Global.CurrentScreen = startingConsole;
+            _introConsole = new Console(Width, Height, Global.FontDefault);
+            Global.CurrentScreen = _introConsole;
             CreatePlayer();
+            ShowIntro();
             _gameStopWatch = new Stopwatch();
             _asteroidStopWatch = new Stopwatch();
         }
