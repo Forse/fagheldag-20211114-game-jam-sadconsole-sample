@@ -139,7 +139,7 @@ namespace ElectronicFarts
                     }
                 }
                 
-                if (new Random().Next(1, 100) > IsGameTick().Item2)
+                if (new Random().Next(1, 100) > IsAsteroidTick(obj).Item2)
                 {
                     CreateAsteroid();
                 }
