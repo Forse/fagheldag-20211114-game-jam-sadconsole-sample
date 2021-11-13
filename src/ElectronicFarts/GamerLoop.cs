@@ -241,7 +241,7 @@ namespace ElectronicFarts
         private static void CreateAsteroid()
         {
             var heatSeeking = new Random().Next(1, 100) >= 80;
-            var asteroid = new Asteroid(heatSeeking ? Color.Purple : Color.Red, Color.Transparent, 31, 2, 2)
+            var asteroid = new Asteroid(heatSeeking ? Color.Purple : Color.Red, Color.Transparent, heatSeeking ? 216 : 179, 2, 2)
             {
                 HeatSeeking = heatSeeking
             };
