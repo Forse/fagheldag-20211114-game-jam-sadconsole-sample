@@ -28,7 +28,6 @@ namespace ElectronicFarts
         private static Stopwatch _asteroidStopWatch;
         public static Console startingConsole;
         private static bool isGameOver = false;
-        private static bool heatSeeking = false;
         static void Main(string[] args)
         {
             SadConsole.Game.Create(Width, Height);
@@ -125,11 +124,11 @@ namespace ElectronicFarts
                     }
                     else
                     {
-                        if (heatSeeking && asteroid.Position.X > playerGroup.GetLeftValue())
+                        if (asteroid.HeatSeeking && asteroid.Position.X > playerGroup.GetLeftValue())
                         {
                             asteroid.MoveBy(new Point(-1, 1));
                         }
-                        else if (heatSeeking && asteroid.Position.X < playerGroup.GetRightValue())
+                        else if (asteroid.HeatSeeking && asteroid.Position.X < playerGroup.GetRightValue())
                         {
                             asteroid.MoveBy(new Point(1, 1));
                         }
@@ -241,8 +240,11 @@ namespace ElectronicFarts
 
         private static void CreateAsteroid()
         {
-            var assRand = new Random().Next(1, 32);
-            var asteroid = new Asteroid(Color.Red, Color.Transparent, 31, 2, 2);
+            var heatSeeking = new Random().Next(1, 100) >= 80;
+            var asteroid = new Asteroid(heatSeeking ? Color.Purple : Color.Red, Color.Transparent, 31, 2, 2)
+            {
+                HeatSeeking = heatSeeking
+            };
             var startPosition = new Random().Next(roomStartX, _roomWidth-1);
             asteroid.Position = new Point(startPosition, 1);
             startingConsole.Children.Add(asteroid);
