@@ -29,6 +29,7 @@ namespace ElectronicFarts
         private static Stopwatch _asteroidStopWatch;
         public static Console startingConsole;
         private static bool isGameOver = false;
+        private static bool isBossDead = false;
         static void Main(string[] args)
         {
             SadConsole.Game.Create(Width, Height);
@@ -58,7 +59,20 @@ namespace ElectronicFarts
             
             if (_asteroidStopWatch.IsRunning == false)
                 _asteroidStopWatch.Start();
-            
+
+            foreach (var shot in _shots.ToList())
+            {
+                if (_bossGroup.IsHIt(shot.Position))
+                {
+                    var deadBossSegment = _bossGroup.TakeDamage();
+
+                    if (deadBossSegment != null)
+                    {
+                        startingConsole.Children.Remove(deadBossSegment);
+                    }
+                }
+            }
+
             foreach (var asteroid in _asteroids.ToList())
             {
                 var asteroidHit = false;
@@ -116,11 +130,16 @@ namespace ElectronicFarts
             {
                 playerGroup.IsShooting = false;
 
-                if (IsBossTime(obj))
+                if (IsBossTime(obj) && isBossDead==false)
                 {
                     //Boss level
                     // Create Boss
-                    CreateBoss();
+                    if (_bossGroup == null)
+                    {
+                        CreateBoss();
+                    }
+
+                    _bossGroup.MoveBy(new Point(new Random().Next(-3,3), 0));
 
                 }
 
@@ -229,7 +248,7 @@ namespace ElectronicFarts
 
         private static bool IsBossTime(GameTime gameTime)
         {
-            return gameTime.TotalGameTime.TotalSeconds > 10;
+            return gameTime.TotalGameTime.TotalSeconds > 1;
         }
 
         private static void Init()
@@ -255,7 +274,7 @@ namespace ElectronicFarts
         
         private static void CreateBoss()
         {
-            _bossGroup = new BossGroup(1, 14);
+            _bossGroup = new BossGroup(2, 20);
             foreach (var segment in _bossGroup.BossSegments)
             {
                 startingConsole.Children.Add(segment);
