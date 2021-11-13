@@ -81,7 +81,7 @@ namespace ElectronicFarts
 
             foreach (var shot in _shots.ToList())
             {
-                if (_bossGroup.IsHIt(shot.Position))
+                if (_bossGroup!=null && _bossGroup.IsHIt(shot.Position))
                 {
                     var deadBossSegment = _bossGroup.TakeDamage();
 
@@ -281,7 +281,7 @@ namespace ElectronicFarts
 
         private static bool IsBossTime(GameTime gameTime)
         {
-            return gameTime.TotalGameTime.TotalSeconds > 1;
+            return gameTime.TotalGameTime.TotalSeconds > 45;
         }
 
         private static void Init()
