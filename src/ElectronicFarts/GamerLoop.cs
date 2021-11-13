@@ -292,7 +292,6 @@ namespace ElectronicFarts
 
         private static void Init()
         {
-            CreateBackgroundMusic();
             CreateWalls();
             CreateFloors();
             startingConsole = new ScrollingConsole(Width, Height, Global.FontDefault, new Rectangle(0, 0, Width, Height));
