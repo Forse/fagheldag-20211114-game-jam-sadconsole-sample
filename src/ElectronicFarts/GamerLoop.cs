@@ -12,9 +12,9 @@ namespace ElectronicFarts
     {
         public const int Width = 60;
         public const int Height = 60;
-        private static PlayerGroup playerGroup;
+        private static SpaceShip _spaceShip;
         private static BossGroup _bossGroup;
-        private static List<Asteroid> _asteroids = new();
+        private static List<Laser> _lasers = new();
         private static List<Shot> _shots = new();
         
         private static TileBase[] _tiles;
@@ -26,7 +26,7 @@ namespace ElectronicFarts
         private const int _floorYValue = 49;
 
         private static Stopwatch _gameStopWatch;
-        private static Stopwatch _asteroidStopWatch;
+        private static Stopwatch _laserStopWatch;
         public static Console startingConsole;
         private static Console _introConsole;
         private static bool isGameOver = false;
@@ -75,37 +75,38 @@ namespace ElectronicFarts
             if (_gameStopWatch.IsRunning == false)
                 _gameStopWatch.Start();
             
-            if (_asteroidStopWatch.IsRunning == false)
-                _asteroidStopWatch.Start();
+            if (_laserStopWatch.IsRunning == false)
+                _laserStopWatch.Start();
             
-            foreach (var asteroid in _asteroids.ToList())
+            foreach (var laser in _lasers.ToList())
             {
-                var asteroidHit = false;
+                var laserHit = false;
                 foreach (var shot in _shots.ToList())
                 {
-                    if (shot.Position == asteroid.Position)
+                    if (shot.Position == laser.Position)
                     {
-                        startingConsole.Children.Remove(asteroid);
-                        _asteroids.Remove(asteroid);
+                        startingConsole.Children.Remove(laser);
+                        _lasers.Remove(laser);
                         startingConsole.Children.Remove(shot);
                         _shots.Remove(shot);
-                        asteroidHit = true;
+                        laserHit = true;
                         break;
                     }
                 }
 
-                if (!asteroidHit)
+                if (!laserHit)
                 {
-                    if (playerGroup.IsHIt(asteroid.Position))
+                    if (_spaceShip.IsHIt(laser.Position))
                     {
                         //Collision
-                        var deadGroupPlayer = playerGroup.TakeDamage();
-
+                        startingConsole.Children.Remove(laser);
+                        _lasers.Remove(laser);
+                        var deadGroupPlayer = _spaceShip.TakeDamage();
                         if (deadGroupPlayer != null)
                         {
                             startingConsole.Children.Remove(deadGroupPlayer);
                         }
-                        if (playerGroup.Players.Count == 0)
+                        if (_spaceShip.Players.Count == 0)
                         {
                             isGameOver = true;
                         }
@@ -131,9 +132,9 @@ namespace ElectronicFarts
                 _gameStopWatch.Restart();
             }
 
-            if (IsAsteroidTick(obj).Item1)
+            if (IsLaserTick(obj).Item1)
             {
-                playerGroup.IsShooting = false;
+                _spaceShip.IsShooting = false;
 
                 if (IsBossTime(obj))
                 {
@@ -143,36 +144,36 @@ namespace ElectronicFarts
 
                 }
 
-                foreach (var asteroid in _asteroids.ToList())
+                foreach (var laser in _lasers.ToList())
                 {
-                    if (asteroid.Position.Y == _floorYValue)
+                    if (laser.Position.Y == _floorYValue)
                     {
                         //Remove it
-                        startingConsole.Children.Remove(asteroid);
-                        _asteroids.Remove(asteroid);
+                        startingConsole.Children.Remove(laser);
+                        _lasers.Remove(laser);
                     }
                     else
                     {
-                        if (asteroid.HeatSeeking && asteroid.Position.X > playerGroup.GetLeftValue())
+                        if (laser.HeatSeeking && laser.Position.X > _spaceShip.GetLeftValue())
                         {
-                            asteroid.MoveBy(new Point(-1, 1));
+                            laser.MoveBy(new Point(-1, 1));
                         }
-                        else if (asteroid.HeatSeeking && asteroid.Position.X < playerGroup.GetRightValue())
+                        else if (laser.HeatSeeking && laser.Position.X < _spaceShip.GetRightValue())
                         {
-                            asteroid.MoveBy(new Point(1, 1));
+                            laser.MoveBy(new Point(1, 1));
                         }
                         else
                         {
-                            asteroid.MoveBy(new Point(0, 1));
+                            laser.MoveBy(new Point(0, 1));
                         }
                     }
                 }
                 
-                if (new Random().Next(1, 100) > IsAsteroidTick(obj).Item2 && !IsBossTime(obj))
+                if (new Random().Next(1, 100) > IsLaserTick(obj).Item2 && !IsBossTime(obj))
                 {
-                    CreateAsteroid();
+                    CreateLaser();
                 }
-                _asteroidStopWatch.Restart();
+                _laserStopWatch.Restart();
             }
         }
 
@@ -190,25 +191,25 @@ namespace ElectronicFarts
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left) 
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left))
             {
-                playerGroup.MoveBy(new Point(-1, 0));
+                _spaceShip.MoveBy(new Point(-1, 0));
             }
 
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right)
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right))
             {
-                playerGroup.MoveBy(new Point(1, 0));
+                _spaceShip.MoveBy(new Point(1, 0));
             }
             
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up)
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Up))
             {
-                playerGroup.MoveBy(new Point(0, -1));
+                _spaceShip.MoveBy(new Point(0, -1));
             }
             
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down)
                 || Global.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Down))
             {
-                playerGroup.MoveBy(new Point(0, 1));
+                _spaceShip.MoveBy(new Point(0, 1));
             }
 
             if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space)
@@ -230,28 +231,28 @@ namespace ElectronicFarts
 
         private static void Shoot()
         {
-            if (playerGroup.IsShooting)
+            if (_spaceShip.IsShooting)
             {
                 return;
             }
             var shot = new Shot(Color.YellowGreen, Color.Transparent, 6, 2, 2)
             {
-                Position = new Point(playerGroup.GetLeftValue() , playerGroup.GetBottomValue() - 1)
+                Position = new Point(_spaceShip.GetRightValue() - 1 , _spaceShip.GetBottomValue() - 1)
             };
             startingConsole.Children.Add(shot);
             _shots.Add(shot);
-            playerGroup.IsShooting = true;
+            _spaceShip.IsShooting = true;
         }
 
 
-        private static (bool,int) IsAsteroidTick(GameTime gameTime)
+        private static (bool,int) IsLaserTick(GameTime gameTime)
         {
             return gameTime.TotalGameTime switch
             {
-                { TotalSeconds: < 20 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 200, 90),
-                { TotalSeconds: < 40 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 150, 70),
-                { TotalSeconds: < 60 } => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 100, 50),
-                _ => (_asteroidStopWatch.Elapsed.TotalMilliseconds > 75, 20)
+                { TotalSeconds: < 20 } => (_laserStopWatch.Elapsed.TotalMilliseconds > 200, 90),
+                { TotalSeconds: < 40 } => (_laserStopWatch.Elapsed.TotalMilliseconds > 150, 70),
+                { TotalSeconds: < 60 } => (_laserStopWatch.Elapsed.TotalMilliseconds > 100, 50),
+                _ => (_laserStopWatch.Elapsed.TotalMilliseconds > 75, 20)
             };
         }
         
@@ -276,13 +277,13 @@ namespace ElectronicFarts
             CreatePlayer();
             ShowIntro();
             _gameStopWatch = new Stopwatch();
-            _asteroidStopWatch = new Stopwatch();
+            _laserStopWatch = new Stopwatch();
         }
 
         private static void CreatePlayer()
         {
-            playerGroup = new PlayerGroup(_floorYValue, 14);
-            foreach (var groupPlayer in playerGroup.Players)
+            _spaceShip = new SpaceShip(_floorYValue, 14);
+            foreach (var groupPlayer in _spaceShip.Players)
             {
                 startingConsole.Children.Add(groupPlayer);
             }
@@ -297,17 +298,17 @@ namespace ElectronicFarts
             }
         }
 
-        private static void CreateAsteroid()
+        private static void CreateLaser()
         {
             var heatSeeking = new Random().Next(1, 100) >= 80;
-            var asteroid = new Asteroid(heatSeeking ? Color.Purple : Color.Red, Color.Transparent, heatSeeking ? 216 : 179, 2, 2)
+            var laser = new Laser(heatSeeking ? Color.Purple : Color.Red, Color.Transparent, heatSeeking ? 216 : 179, 2, 2)
             {
                 HeatSeeking = heatSeeking
             };
             var startPosition = new Random().Next(roomStartX, _roomWidth-1);
-            asteroid.Position = new Point(startPosition, 1);
-            startingConsole.Children.Add(asteroid);
-            _asteroids.Add(asteroid);
+            laser.Position = new Point(startPosition, 1);
+            startingConsole.Children.Add(laser);
+            _lasers.Add(laser);
         }
         
         private static void CreateFloors()
