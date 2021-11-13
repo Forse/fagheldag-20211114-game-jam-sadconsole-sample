@@ -90,6 +90,10 @@ namespace ElectronicFarts
                     {
                         startingConsole.Children.Remove(deadBossSegment);
                     }
+                    if (!_bossGroup.BossSegments.Any())
+                    {
+                        isBossDead = true;
+                    }
                 }
             }
 
@@ -160,7 +164,7 @@ namespace ElectronicFarts
                         CreateBoss();
                     }
 
-                    _bossGroup.MoveBy(new Point(new Random().Next(-3,3), 0));
+                    _bossGroup.MoveBy(new Point(new Random().Next(-6,7), 0));
 
                 }
 
@@ -189,7 +193,7 @@ namespace ElectronicFarts
                     }
                 }
                 
-                if (new Random().Next(1, 100) > IsLaserTick(obj).Item2 && !IsBossTime(obj))
+                if (new Random().Next(1, 100) > IsLaserTick(obj).Item2 && (!IsBossTime(obj) || isBossDead))
                 {
                     CreateLaser();
                 }
