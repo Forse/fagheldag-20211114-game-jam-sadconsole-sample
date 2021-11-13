@@ -13,6 +13,7 @@ namespace ElectronicFarts
         public const int Width = 60;
         public const int Height = 60;
         private static PlayerGroup playerGroup;
+        private static BossGroup _bossGroup;
         private static List<Asteroid> _asteroids = new();
         private static List<Shot> _shots = new();
         
@@ -58,6 +59,41 @@ namespace ElectronicFarts
             if (_asteroidStopWatch.IsRunning == false)
                 _asteroidStopWatch.Start();
             
+            foreach (var asteroid in _asteroids.ToList())
+            {
+                var asteroidHit = false;
+                foreach (var shot in _shots.ToList())
+                {
+                    if (shot.Position == asteroid.Position)
+                    {
+                        startingConsole.Children.Remove(asteroid);
+                        _asteroids.Remove(asteroid);
+                        startingConsole.Children.Remove(shot);
+                        _shots.Remove(shot);
+                        asteroidHit = true;
+                        break;
+                    }
+                }
+
+                if (!asteroidHit)
+                {
+                    if (playerGroup.IsHIt(asteroid.Position))
+                    {
+                        //Collision
+                        var deadGroupPlayer = playerGroup.TakeDamage();
+
+                        if (deadGroupPlayer != null)
+                        {
+                            startingConsole.Children.Remove(deadGroupPlayer);
+                        }
+                        if (playerGroup.Players.Count == 0)
+                        {
+                            isGameOver = true;
+                        }
+                    }
+                }
+            }
+            
             if (IsGameTick().Item1)
             {
                 foreach (var shot in _shots.ToList())
@@ -72,47 +108,21 @@ namespace ElectronicFarts
                         shot.MoveBy(new Point(0, -1));
                     }
                 }
-                foreach (var asteroid in _asteroids.ToList())
-                {
-                    var asteroidHit = false;
-                    foreach (var shot in _shots.ToList())
-                    {
-                        if (shot.Position == asteroid.Position)
-                        {
-                            startingConsole.Children.Remove(asteroid);
-                            _asteroids.Remove(asteroid);
-                            startingConsole.Children.Remove(shot);
-                            _shots.Remove(shot);
-                            asteroidHit = true;
-                            break;
-                        }
-                    }
 
-                    if (!asteroidHit)
-                    {
-                        if (playerGroup.IsHIt(asteroid.Position))
-                        {
-                            //Collision
-                            var deadGroupPlayer = playerGroup.TakeDamage();
-
-                            if (deadGroupPlayer != null)
-                            {
-                                startingConsole.Children.Remove(deadGroupPlayer);
-                            }
-                            if (playerGroup.Players.Count == 0)
-                            {
-                                isGameOver = true;
-                            }
-                        }
-                    }
-                }
-                
                 _gameStopWatch.Restart();
             }
 
             if (IsAsteroidTick(obj).Item1)
             {
                 playerGroup.IsShooting = false;
+
+                if (IsBossTime(obj))
+                {
+                    //Boss level
+                    // Create Boss
+                    CreateBoss();
+
+                }
 
                 foreach (var asteroid in _asteroids.ToList())
                 {
@@ -139,7 +149,7 @@ namespace ElectronicFarts
                     }
                 }
                 
-                if (new Random().Next(1, 100) > IsAsteroidTick(obj).Item2)
+                if (new Random().Next(1, 100) > IsAsteroidTick(obj).Item2 && !IsBossTime(obj))
                 {
                     CreateAsteroid();
                 }
@@ -217,6 +227,11 @@ namespace ElectronicFarts
             return (_gameStopWatch.Elapsed.TotalMilliseconds > 75, 20);
         }
 
+        private static bool IsBossTime(GameTime gameTime)
+        {
+            return gameTime.TotalGameTime.TotalSeconds > 10;
+        }
+
         private static void Init()
         {
             CreateBackgroundMusic();
@@ -235,6 +250,15 @@ namespace ElectronicFarts
             foreach (var groupPlayer in playerGroup.Players)
             {
                 startingConsole.Children.Add(groupPlayer);
+            }
+        }
+        
+        private static void CreateBoss()
+        {
+            _bossGroup = new BossGroup(1, 14);
+            foreach (var segment in _bossGroup.BossSegments)
+            {
+                startingConsole.Children.Add(segment);
             }
         }
 
