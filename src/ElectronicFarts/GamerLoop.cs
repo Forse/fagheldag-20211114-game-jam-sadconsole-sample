@@ -47,7 +47,8 @@ namespace ElectronicFarts
             if (isGameOver)
             {
                 var score = obj.TotalGameTime.TotalSeconds.ToString("0000");
-                startingConsole.Print(1, 12, $"Game over dickhead.", ColorAnsi.CyanBright);
+                startingConsole.Fill(new Rectangle(0, 30, Width, 5), Color.Transparent, Color.Red, 0, 0);
+                startingConsole.Print(20, 32, $"Game over dickhead...", ColorAnsi.CyanBright);
                 return;
             }
 
